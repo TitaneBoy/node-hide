@@ -29,8 +29,8 @@ exports.visableWindows = function(callback) {
   enumWindowsCallback = callback;
   user32.EnumWindows(ffi.Callback('bool', ['long', 'int32'], function(hwnd, lParam) {
     clearTimeout(enumWindowsTimeout);
-    //enumWindowsTimeout = setTimeout(enumWindowsCallback,50,enumWindowsArray); // 50ms after last run, assume ended
-    enumWindowsTimeout = setTimeout(enumWindowsCallback,50,enumWindowsArray); // 50ms after last run, assume ended
+    //enumWindowsTimeout = setTimeout(enumWindowsCallback,500,enumWindowsArray); // 500ms after last run, assume ended
+    enumWindowsTimeout = setTimeout(enumWindowsCallback, 500, enumWindowsArray); // 500ms after last run, assume ended
     if (!user32.IsWindowVisible(hwnd)) {
       return true;
     }

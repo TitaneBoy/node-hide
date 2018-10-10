@@ -9,6 +9,9 @@ var hide = require('./main.js');
 // hide.hideWindow([1115138,331240]);
 // setTimeout(function(){hide.showWindow([1115138,331240]);},500);
 
-hide.visableWindows(function(data){console.log(JSON.stringify(data))});
+hide.visableWindows(function(data){
+  console.log(`Data length: ${data ? Object.keys(data).length : 'null'}`);
+  console.log(JSON.stringify(data))
+});
 
 }
