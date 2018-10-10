@@ -1,6 +1,6 @@
 var exports = module.exports = {};
 var ref = require('ref');
-var ffi = require('ffi');
+var ffi = require('ffi-napi');
 var enumWindowsArray = {};
 var enumWindowsTimeout;
 var enumWindowsCallback;
@@ -20,20 +20,24 @@ var user32 = ffi.Library('user32.dll', {
   ShowWindow : ['int', ['int', 'int']]
 });
 
-function TEXT(text){
+function TEXT(text) {
   return new Buffer(text, 'ucs2').toString('binary');
 }
 
-exports.visableWindows = function(callback){
+exports.visableWindows = function(callback) {
   enumWindowsArray = {};
   enumWindowsCallback = callback;
   user32.EnumWindows(ffi.Callback('bool', ['long', 'int32'], function(hwnd, lParam) {
     clearTimeout(enumWindowsTimeout);
     //enumWindowsTimeout = setTimeout(enumWindowsCallback,50,enumWindowsArray); // 50ms after last run, assume ended
     enumWindowsTimeout = setTimeout(enumWindowsCallback,50,enumWindowsArray); // 50ms after last run, assume ended
-    if (!user32.IsWindowVisible(hwnd)) return true;
+    if (!user32.IsWindowVisible(hwnd)) {
+      return true;
+    }
     var length = user32.GetWindowTextLengthA(hwnd);
-    if (length == 0) return true;
+    if (length == 0) {
+      return true;
+    } 
 
     var buf = new Buffer(length+1);
     user32.GetWindowTextA(hwnd, buf, length+1);
@@ -45,50 +49,56 @@ exports.visableWindows = function(callback){
   }), 0);
 }
 
-exports.findWindow = function(name){
-  for(i=0;i<50;i++){ //ensure accurate reading, sometimes returns 0 when window does exist
+exports.findWindow = function(name) {
+  for (i=0;i<50;i++) { //ensure accurate reading, sometimes returns 0 when window does exist
     handle = user32.FindWindowW(null, TEXT(name))
-    if(handle!==0){break;}
+    if (handle!==0) {
+      break;
+    }
   }
   return handle;
 }
 
-exports.hideWindow = function(handle){
-  if(typeof handle === 'object'){
-    handle.forEach(function(e){user32.ShowWindow(e, 0);});
-  }else if(typeof handle === 'number'){
+exports.hideWindow = function(handle) {
+  if (typeof handle === 'object') {
+    handle.forEach(function(e){
+      user32.ShowWindow(e, 0);
+    });
+  } else if (typeof handle === 'number') {
     user32.ShowWindow(handle, 0);
-  }else{
+  } else {
     Error("Handle wasn't array/number")
   }
 }
 
-exports.showWindow = function(handle){
-  if(typeof handle === 'object'){
+exports.showWindow = function(handle) {
+  if (typeof handle === 'object') {
     handle.forEach(function(e){user32.ShowWindow(e, 5);});
-  }else if(typeof handle === 'number'){
+  } else if (typeof handle === 'number') {
     user32.ShowWindow(handle, 5);
-  }else{
+  } else {
     Error("Handle wasn't array/number")
   }
 }
 
-exports.setWindow = function(handle, state){
-  if(typeof handle === 'object'){
-    handle.forEach(function(e){user32.ShowWindow(e, state);});
-  }else if(typeof handle === 'number'){
+exports.setWindow = function(handle, state) {
+  if (typeof handle === 'object') {
+    handle.forEach(function(e){
+      user32.ShowWindow(e, state);
+    });
+  } else if(typeof handle === 'number') {
     user32.ShowWindow(handle, state); //use values from https://msdn.microsoft.com/en-us/library/windows/desktop/ms633548.aspx
-  }else{
+  } else {
     Error("Handle wasn't array/number")
   }
 }
 
 exports.closeWindow = function(handle){
-  if(typeof handle === 'object'){
+  if (typeof handle === 'object') {
     handle.forEach(function(e){user32.CloseWindow(e);});
-  }else if(typeof handle === 'number'){
+  } else if(typeof handle === 'number') {
     user32.CloseWindow(handle);
-  }else{
+  } else {
     Error("Handle wasn't array/number")
   }
 }
